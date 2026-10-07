@@ -1,0 +1,9 @@
+.DS_Store
+build/
+.build/
+.swiftpm/
+DerivedData/
+*.xcuserstate
+
+# Local implementation report and desktop capture
+docs/2026-10-07 Clamsomnia 구현/
