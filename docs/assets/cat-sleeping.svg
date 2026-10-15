@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
+  <!-- The sleeping CatIcon paths from Sources/App/CatIcon.swift, in AppKit coordinates. -->
+  <g transform="translate(0 18) scale(1 -1)" stroke="#252347" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="1.35" d="M2.2 2.6V8.2L5 14.8 7.8 11.5C8.5 11.9 9.5 11.9 10.2 11.5L13 14.8 15.8 8.2V2.6C14.8 .8 3.2 .8 2.2 2.6Z"/>
+    <path stroke-width="1" d="M4.1 9 5 12.6M13.9 9 13 12.6"/>
+    <path stroke-width="1.35" d="M5.5 7.7C6 6.8 7.3 6.8 7.8 7.7M10.2 7.7C10.7 6.8 12 6.8 12.5 7.7"/>
+    <path fill="#252347" stroke="none" d="m8.5 5.3.5-.4.5.4Z"/>
+    <path stroke-width=".8" d="M9 4.9V4.4C8.8 4 8.5 4 8.3 4.3M9 4.4C9.5 4 9.2 4 9.7 4.3"/>
+    <path stroke-width=".9" d="M15 16.8h1.5L15 15.4h1.5"/>
+  </g>
+</svg>

@@ -4,6 +4,10 @@ toggle?.addEventListener('click', () => {
   const enabled = toggle.getAttribute('aria-checked') !== 'true';
   toggle.setAttribute('aria-checked', String(enabled));
   document.querySelector('.stage').classList.toggle('is-off', !enabled);
+  document.querySelectorAll('.computer img').forEach((image) => {
+    const asset = enabled ? 'cat.svg' : 'cat-sleeping.svg';
+    image.src = new URL(asset, image.src).href;
+  });
   document.querySelector('.screen-status').textContent = english
     ? (enabled ? 'Sleep prevention is on' : 'Normal sleep is allowed')
     : (enabled ? '잠자기 방지 중' : '잠자기 허용 중');
