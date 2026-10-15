@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clamsomnia — A little more awake</title>
+  <meta name="description" content="Keep your Mac working with the lid closed. Clamsomnia controls system sleep from the menu bar. Install from source, set a timer, and restore sleep at a battery threshold.">
+  <meta name="theme-color" content="#252347">
+  <meta property="og:title" content="Clamsomnia — A little more awake"><meta property="og:description" content="A little menu bar cat that keeps your Mac working. Install from source in your terminal."><meta property="og:type" content="website"><meta property="og:url" content="https://mytory.github.io/clamsomnia/en/">
+  <link rel="canonical" href="https://mytory.github.io/clamsomnia/en/">
+  <link rel="alternate" hreflang="ko" href="https://mytory.github.io/clamsomnia/"><link rel="alternate" hreflang="en" href="https://mytory.github.io/clamsomnia/en/">
+  <link rel="icon" href="../assets/cat.svg" type="image/svg+xml"><link rel="stylesheet" href="../assets/style.css"><script src="../assets/main.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="wrap">
+    <a class="brand" href="./" aria-label="Clamsomnia home"><img src="../assets/cat.svg" alt="" width="31" height="31">Clamsomnia</a>
+    <nav aria-label="Main navigation"><a class="nav-feature" href="#features">Features</a><a href="#install">Install</a><a class="nav-source" href="https://github.com/mytory/clamsomnia">GitHub</a><a class="language" href="../" lang="ko" hreflang="ko">한국어</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div><h1 id="hero-title">Close the lid.<br>Keep working.</h1><p class="intro">Build still running?<br>Clamsomnia keeps your Mac awake. Click the little cat in your menu bar and let your work carry on.</p><div class="actions"><a class="button" href="#install">Install from your terminal</a><a class="text-link" href="https://github.com/mytory/clamsomnia">View source</a></div><p class="platform">macOS 14 or later · Requires Xcode</p></div>
+      <div class="stage" aria-label="Try sleep prevention">
+        <div class="moon" aria-hidden="true"></div><div class="computer" aria-hidden="true"><div class="display"><div class="menubar"><span>Clamsomnia</span><img src="../assets/cat.svg" alt=""></div><img class="cat-big" src="../assets/cat.svg" alt=""><p class="screen-status">Sleep prevention is on</p></div><div class="laptop-base"></div></div>
+        <div class="demo-control"><button class="switch" type="button" role="switch" aria-checked="true" aria-label="Try sleep prevention"></button><span class="demo-label">While the cat is awake</span></div><p class="demo-hint">Give it a click. This demo won’t change your Mac’s settings.</p>
+      </div>
+    </section>
+    <section class="features wrap" id="features" aria-label="Features">
+      <article><span class="feature-symbol" aria-hidden="true">◷</span><h3>On your schedule</h3><p>Set a duration in minutes or keep it on indefinitely. When the timer ends or you quit the app, sleep prevention started by the app is removed.</p></article>
+      <article><span class="feature-symbol" aria-hidden="true">▱</span><h3>Leave some battery</h3><p>Allow sleep automatically when your battery reaches a chosen percentage. Applies only on battery power and does not force your Mac to sleep.</p></article>
+      <article><span class="feature-symbol" aria-hidden="true">☼</span><h3>Keep the screen awake, too</h3><p>Optionally suppress idle display sleep and the idle screen saver. Manual locking and your organization’s security policies still apply.</p></article>
+    </section>
+    <section class="install-shell" id="install" aria-labelledby="install-title"><div class="wrap install-grid">
+      <div class="install-copy"><h2 id="install-title">Open a terminal.<br>Make yourself at home.</h2><p>Clone the repository, then build and install locally. No extra dependency packages to install.</p><p class="requirements">You’ll need macOS 14 or later, Xcode with Command Line Tools, and Git. Installation asks for your administrator password once.</p><p class="honest">To keep distribution costs down, Clamsomnia is currently available as source on GitHub rather than through the App Store.</p></div>
+      <div><div class="terminal"><div class="terminal-bar"><span>Terminal</span><button class="copy" type="button" aria-live="polite">Copy</button></div><pre><code id="install-command">git clone https://github.com/mytory/clamsomnia.git
+cd clamsomnia
+./Scripts/install.sh
+open /Applications/Clamsomnia.app</code></pre><p class="terminal-note">Open Xcode once to finish its initial setup. Check that the build tools are available with <code>xcodebuild -version</code>.</p></div><div class="install-links"><a href="https://github.com/mytory/clamsomnia#소스에서-빌드하고-설치하기">Full installation guide (Korean)</a><a href="https://github.com/mytory/clamsomnia/issues">Report an issue</a></div></div>
+    </div></section>
+    <section class="usage wrap" aria-labelledby="usage-title"><div class="usage-lead"><h2 id="usage-title">One little cat.<br>That’s all.</h2><p>Lives in the menu bar, out of your Dock. Turn it on when you need it. Turn it off when you’re done.</p></div><ol class="steps"><li><strong>Choose a duration on first launch.</strong><p>The initial value is 300 minutes. Choose unlimited if you prefer, and change it in settings whenever you like.</p></li><li><strong>Left-click the cat to toggle.</strong><p>Right-click to see the time remaining, the restore deadline, or open settings.</p></li><li><strong>Make it fit your workflow.</strong><p>Choose a battery threshold, automatic lock prevention, launch at login, and activation on launch independently.</p></li></ol></section>
+    <section class="faq wrap" aria-labelledby="faq-title"><h2 id="faq-title">A few things to know</h2><div class="questions">
+      <details><summary>Does it only prevent sleep when the lid is closed?</summary><p>It disables system sleep, so it also affects other sleep situations. macOS may still sleep under low battery or thermal conditions. Check heat and battery levels when carrying your Mac in a bag.</p></details>
+      <details><summary>Does automatic lock prevention change my password settings?</summary><p>No. It suppresses idle display sleep and the idle screen saver during an app-owned prevention session. It does not unlock an already locked screen or override manual locking, lid closure, or administrator security policies. Keeping the display on can use more battery.</p></details>
+      <details><summary>What happens when I quit, or want to sleep now?</summary><p>Quitting restores the sleep setting for sessions started by the app. It does not automatically remove sleep prevention started by another tool. To sleep immediately, right-click the cat and choose the command to disable prevention and sleep.</p></details>
+      <details><summary>How do I update or uninstall?</summary><p>To update, quit the app, run <code>git pull --ff-only</code> in the repository, and reinstall with <code>./Scripts/install.sh</code>. To uninstall, quit the app and run <code>./Scripts/uninstall.sh</code>. This removes both the app and its privileged helper.</p></details>
+    </div></section>
+  </main>
+  <footer class="wrap"><span>Clamsomnia · A little more awake.</span><div class="footer-links"><a href="https://github.com/mytory/clamsomnia">GitHub</a><a href="https://github.com/mytory/clamsomnia/issues">Report an issue</a><a href="../" lang="ko">한국어</a></div></footer>
+</body>
+</html>

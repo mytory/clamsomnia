@@ -2,6 +2,8 @@
 
 MacBook 덮개를 닫고 이동하는 동안에도 작업을 계속할 수 있도록 시스템 잠자기를 잠시 비활성화하는 macOS 메뉴 막대 앱입니다. `pmset -a disablesleep 1` 동작을 메뉴 막대에서 켜고 끕니다.
 
+소개와 설치 안내: [한국어](https://mytory.github.io/clamsomnia/) · [English](https://mytory.github.io/clamsomnia/en/)
+
 ## 요구 사항
 
 - macOS 14 이상

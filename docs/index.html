@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clamsomnia — Mac은 조금 더 깨어 있게</title>
+  <meta name="description" content="MacBook 덮개를 닫아도 작업을 이어 가세요. 메뉴 막대에서 잠자기를 제어하는 macOS 앱 Clamsomnia. 소스 설치 방법과 배터리 자동 해제 옵션을 소개합니다.">
+  <meta name="theme-color" content="#252347">
+  <meta property="og:title" content="Clamsomnia — Mac은 조금 더 깨어 있게"><meta property="og:description" content="메뉴 막대의 작은 고양이로 제어하는 Mac 잠자기 방지. 개발자를 위한 소스 설치 안내."><meta property="og:type" content="website"><meta property="og:url" content="https://mytory.github.io/clamsomnia/">
+  <link rel="canonical" href="https://mytory.github.io/clamsomnia/">
+  <link rel="alternate" hreflang="ko" href="https://mytory.github.io/clamsomnia/"><link rel="alternate" hreflang="en" href="https://mytory.github.io/clamsomnia/en/">
+  <link rel="icon" href="assets/cat.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"><script src="assets/main.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="wrap">
+    <a class="brand" href="./" aria-label="Clamsomnia 홈"><img src="assets/cat.svg" alt="" width="31" height="31">Clamsomnia</a>
+    <nav aria-label="주 메뉴"><a class="nav-feature" href="#features">기능</a><a href="#install">설치 방법</a><a class="nav-source" href="https://github.com/mytory/clamsomnia">GitHub</a><a class="language" href="en/" lang="en" hreflang="en">English</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div><h1 id="hero-title">덮개는 닫아도,<br>작업은 계속.</h1><p class="intro">빌드가 아직 돌고 있나요?<br>Clamsomnia는 Mac이 잠들지 않게 합니다. 메뉴 막대의 고양이를 눌러, 필요한 동안만 깨워 두세요.</p><div class="actions"><a class="button" href="#install">터미널에서 설치하기</a><a class="text-link" href="https://github.com/mytory/clamsomnia">소스 보기</a></div><p class="platform">macOS 14 이상 · Xcode 필요</p></div>
+      <div class="stage" aria-label="잠자기 방지 체험">
+        <div class="moon" aria-hidden="true"></div><div class="computer" aria-hidden="true"><div class="display"><div class="menubar"><span>Clamsomnia</span><img src="assets/cat.svg" alt=""></div><img class="cat-big" src="assets/cat.svg" alt=""><p class="screen-status">잠자기 방지 중</p></div><div class="laptop-base"></div></div>
+        <div class="demo-control"><button class="switch" type="button" role="switch" aria-checked="true" aria-label="잠자기 방지 체험"></button><span class="demo-label">고양이가 깨어 있는 동안</span></div><p class="demo-hint">눌러 보세요. 웹 체험은 Mac 설정을 바꾸지 않습니다.</p>
+      </div>
+    </section>
+    <section class="features wrap" id="features" aria-label="주요 기능">
+      <article><span class="feature-symbol" aria-hidden="true">◷</span><h3>필요한 시간만큼</h3><p>분 단위로 방지 시간을 정하거나 무제한으로 두세요. 시간이 끝나거나 앱을 종료하면 앱이 켠 잠자기 방지는 해제됩니다.</p></article>
+      <article><span class="feature-symbol" aria-hidden="true">▱</span><h3>배터리를 남겨 두세요</h3><p>잔량이 설정한 % 이하가 되면 자동으로 잠자기를 허용합니다. 배터리로 사용 중일 때만 적용하며, 강제로 재우지는 않습니다.</p></article>
+      <article><span class="feature-symbol" aria-hidden="true">☼</span><h3>화면도 깨어 있게</h3><p>원하면 화면 자동 꺼짐과 유휴 화면 보호기도 억제하세요. 수동 잠금과 조직의 보안 정책은 그대로 적용됩니다.</p></article>
+    </section>
+    <section class="install-shell" id="install" aria-labelledby="install-title"><div class="wrap install-grid">
+      <div class="install-copy"><h2 id="install-title">터미널을 열고,<br>설치하세요.</h2><p>저장소를 받아 로컬에서 빌드하고 설치합니다. 의존성 패키지를 따로 설치할 필요는 없습니다.</p><p class="requirements">macOS 14 이상, Xcode와 Command Line Tools, Git이 필요합니다. 설치 중 관리자 암호를 한 번 요청합니다.</p><p class="honest">앱스토어 등록 비용을 아끼기 위해, 현재는 GitHub에서 소스로 배포합니다.</p></div>
+      <div><div class="terminal"><div class="terminal-bar"><span>Terminal</span><button class="copy" type="button" aria-live="polite">복사</button></div><pre><code id="install-command">git clone https://github.com/mytory/clamsomnia.git
+cd clamsomnia
+./Scripts/install.sh
+open /Applications/Clamsomnia.app</code></pre><p class="terminal-note">Xcode를 설치한 뒤 처음 실행해 초기 설정을 마치세요. 빌드 도구는 <code>xcodebuild -version</code>으로 확인할 수 있습니다.</p></div><div class="install-links"><a href="https://github.com/mytory/clamsomnia#소스에서-빌드하고-설치하기">자세한 설치 안내</a><a href="https://github.com/mytory/clamsomnia/issues">문제 신고</a></div></div>
+    </div></section>
+    <section class="usage wrap" aria-labelledby="usage-title"><div class="usage-lead"><h2 id="usage-title">작은 고양이 하나면<br>충분합니다.</h2><p>Dock을 차지하지 않고 메뉴 막대에 머뭅니다. 필요할 때 켜고, 끝나면 끄세요.</p></div><ol class="steps"><li><strong>처음에는 방지 시간을 정하세요.</strong><p>기본 입력값은 300분입니다. 무제한도 선택할 수 있고, 설정에서 언제든 바꿀 수 있습니다.</p></li><li><strong>고양이를 좌클릭하면 켜지고 꺼집니다.</strong><p>우클릭하면 남은 시간과 복구 시한을 확인하고 설정을 열 수 있습니다.</p></li><li><strong>설정에서 내 작업에 맞추세요.</strong><p>배터리 임계값, 자동 잠금 방지, 로그인 시 실행과 앱 실행 직후 활성화를 각각 선택하세요.</p></li></ol></section>
+    <section class="faq wrap" aria-labelledby="faq-title"><h2 id="faq-title">알아 두면 좋은 것</h2><div class="questions">
+      <details><summary>덮개를 닫았을 때만 잠자기를 막나요?</summary><p>시스템 잠자기 자체를 비활성화하므로 다른 잠자기 상황에도 영향을 줍니다. 배터리 부족이나 과열 등에서는 macOS가 잠들 수 있습니다. 가방에 넣어 이동할 때는 발열과 배터리를 확인하세요.</p></details>
+      <details><summary>자동 잠금 방지는 암호 설정을 바꾸나요?</summary><p>아니요. 방지 세션 동안 화면 꺼짐과 유휴 화면 보호기를 억제합니다. 이미 잠긴 화면을 풀거나 수동 잠금, 덮개 닫기, 관리자의 보안 정책을 무효화하지 않습니다. 화면 유지로 배터리 소모가 늘 수 있습니다.</p></details>
+      <details><summary>앱을 종료하거나 Mac을 직접 재우려면?</summary><p>앱을 종료하면 앱이 직접 켠 방지 세션을 복구합니다. 다른 도구가 켠 방지는 종료만으로 해제하지 않습니다. 직접 재우려면 우클릭 메뉴에서 ‘방지 해제 후 잠자기’를 선택하세요.</p></details>
+      <details><summary>업데이트와 제거는 어떻게 하나요?</summary><p>업데이트는 앱을 종료한 뒤 저장소에서 <code>git pull --ff-only</code>을 실행하고 <code>./Scripts/install.sh</code>로 다시 설치하세요. 제거는 앱을 종료하고 <code>./Scripts/uninstall.sh</code>를 실행하세요. 앱과 관리자 도우미가 함께 제거됩니다.</p></details>
+    </div></section>
+  </main>
+  <footer class="wrap"><span>Clamsomnia · Mac은 조금 더 깨어 있게.</span><div class="footer-links"><a href="https://github.com/mytory/clamsomnia">GitHub</a><a href="https://github.com/mytory/clamsomnia/issues">문제 신고</a><a href="en/" lang="en">English</a></div></footer>
+</body>
+</html>
