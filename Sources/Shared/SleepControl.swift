@@ -1,6 +1,22 @@
 import Combine
 import Foundation
 
+struct PreventionOptions: Codable, Equatable, Sendable {
+    var batteryThreshold: Int?
+    var preventAutoLock = false
+
+    static let defaults = PreventionOptions()
+
+    var isValid: Bool {
+        batteryThreshold.map { (1...100).contains($0) } ?? true
+    }
+
+    func shouldRestore(batteryPercent: Int?, onBattery: Bool) -> Bool {
+        guard onBattery, let batteryThreshold, let batteryPercent else { return false }
+        return batteryPercent <= batteryThreshold
+    }
+}
+
 enum SleepOwnership: String, Codable, Equatable, Sendable {
     case app
     case external
@@ -71,15 +87,20 @@ final class HelperSleepController: ObservableObject, SleepControlling {
     @Published private(set) var status = SleepStatus.disabled
     @Published private(set) var configuredDuration: DurationChoice
     @Published private(set) var hasConfiguredDuration: Bool
+    @Published private(set) var preventionOptions: PreventionOptions
 
     private static let helperMachService = "com.mytory.Clamsomnia.helper"
     private static let durationDefaultsKey = "Clamsomnia.configuredDuration"
+    private static let optionsDefaultsKey = "Clamsomnia.preventionOptions"
 
     private var connection: NSXPCConnection?
     private let defaults: UserDefaults
 
     init(configuredDuration defaultDuration: DurationChoice = .minutes(300), defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        preventionOptions = defaults.data(forKey: Self.optionsDefaultsKey)
+            .flatMap { try? JSONDecoder().decode(PreventionOptions.self, from: $0) }
+            .flatMap { $0.isValid ? $0 : nil } ?? .defaults
         if let data = defaults.data(forKey: Self.durationDefaultsKey),
            let saved = try? JSONDecoder().decode(DurationChoice.self, from: data) {
             configuredDuration = saved
@@ -118,12 +139,21 @@ final class HelperSleepController: ObservableObject, SleepControlling {
         try await send(.sleepNow, duration: configuredDuration)
     }
 
+    func setPreventionOptions(_ options: PreventionOptions) async throws {
+        guard options.isValid else { throw SleepControlError.invalidResponse }
+        try await send(.setOptions, options: options)
+        preventionOptions = options
+        defaults.set(try JSONEncoder().encode(options), forKey: Self.optionsDefaultsKey)
+    }
+
     private func send(
         _ operation: SleepHelperOperation,
         enabled: Bool? = nil,
-        duration: DurationChoice? = nil
+        duration: DurationChoice? = nil,
+        options: PreventionOptions? = nil
     ) async throws {
-        let request = SleepHelperRequest(operation: operation, enabled: enabled, duration: duration)
+        let request = SleepHelperRequest(operation: operation, enabled: enabled, duration: duration,
+                                         options: options ?? preventionOptions)
         let requestData = try JSONEncoder().encode(request)
         let activeConnection = connection ?? makeConnection()
 
@@ -174,12 +204,14 @@ enum SleepHelperOperation: String, Codable {
     case setEnabled
     case setDuration
     case sleepNow
+    case setOptions
 }
 
 struct SleepHelperRequest: Codable {
     var operation: SleepHelperOperation
     var enabled: Bool?
     var duration: DurationChoice?
+    var options: PreventionOptions? = nil
 }
 
 struct SleepHelperResponse: Codable {

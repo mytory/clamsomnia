@@ -17,7 +17,7 @@ xcrun swiftc -target "$target" -parse-as-library \
   -o "$app_dir/Contents/MacOS/Clamsomnia"
 
 xcrun swiftc -target "$target" \
-  -framework Security -framework SystemConfiguration \
+  -framework Security -framework SystemConfiguration -framework IOKit \
   "$project_dir"/Sources/Shared/*.swift \
   "$project_dir"/Sources/Helper/*.swift \
   -o "$build_dir/com.mytory.Clamsomnia.helper"

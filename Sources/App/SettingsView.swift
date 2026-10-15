@@ -15,6 +15,8 @@ struct SettingsView: View {
     @State private var unlimited: Bool
     @State private var saving = false
     @State private var durationSaveTask: Task<Void, Never>?
+    @State private var options: PreventionOptions
+    @State private var savingOptions = false
 
     init(
         controller: HelperSleepController,
@@ -26,6 +28,7 @@ struct SettingsView: View {
         self.firstRun = firstRun
         self.finishSetup = finishSetup
         self.showError = showError
+        _options = State(initialValue: controller.preventionOptions)
         switch controller.configuredDuration {
         case .minutes(let value):
             _minutes = State(initialValue: value)
@@ -67,6 +70,44 @@ struct SettingsView: View {
                     }
             }
 
+            GroupBox("자동 해제와 잠금 화면") {
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("배터리가 부족하면 잠자기 허용", isOn: Binding(
+                        get: { options.batteryThreshold != nil },
+                        set: { options.batteryThreshold = $0 ? 20 : nil }
+                    ))
+                    if options.batteryThreshold != nil {
+                        Stepper(value: Binding(
+                            get: { options.batteryThreshold ?? 20 },
+                            set: { options.batteryThreshold = $0 }
+                        ), in: 1...100) {
+                            Text("배터리 \(options.batteryThreshold ?? 20)% 이하")
+                        }
+                    }
+                    Text("배터리로 사용 중일 때만 적용하며, 강제로 재우지는 않습니다.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Toggle("잠자기 방지 중 자동 잠금 방지", isOn: $options.preventAutoLock)
+                    Text("화면 꺼짐과 유휴 화면 보호기를 억제합니다. 수동 잠금과 회사 보안 정책은 유지됩니다.")
+                        .font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.vertical, 4)
+                .disabled(savingOptions)
+            }
+            .onChange(of: options) { _, newValue in
+                guard !firstRun, newValue != controller.preventionOptions else { return }
+                savingOptions = true
+                Task { @MainActor in
+                    do {
+                        try await controller.setPreventionOptions(newValue)
+                    } catch {
+                        options = controller.preventionOptions
+                        showError(error)
+                    }
+                    savingOptions = false
+                }
+            }
+
             if !firstRun {
                 GroupBox("앱 동작") {
                     VStack(alignment: .leading, spacing: 12) {
@@ -96,14 +137,14 @@ struct SettingsView: View {
                     .disabled(saving || (!unlimited && minutes < 1))
                 }
             } else {
-                Text("방지 시간 변경은 자동 저장됩니다.")
+                Text("설정 변경은 자동 저장됩니다.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 0)
             }
         }
         .padding(22)
-        .frame(width: 420, height: firstRun ? 310 : 420)
+        .frame(width: 460, height: firstRun ? 550 : 660)
         .onAppear(perform: refreshLaunchAtLoginState)
     }
 
@@ -112,6 +153,7 @@ struct SettingsView: View {
         let choice: DurationChoice = unlimited ? .unlimited : .minutes(max(1, minutes))
         Task {
             do {
+                try await controller.setPreventionOptions(options)
                 try await controller.setDuration(choice)
                 saving = false
                 if firstRun { finishSetup() }

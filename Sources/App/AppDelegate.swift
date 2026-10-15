@@ -214,7 +214,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             showError: { [weak self] in self?.showActionError($0) }
         )
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: firstRun ? 310 : 420),
+            contentRect: NSRect(x: 0, y: 0, width: 460, height: firstRun ? 550 : 660),
             styleMask: firstRun ? [.titled] : [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false

@@ -1,11 +1,14 @@
 import Darwin
 import Foundation
+import IOKit.ps
+import IOKit.pwr_mgt
 
 private struct SavedSleepSession: Codable {
     var originalSleepDisabled: Bool
     var deadline: Date?
     var bootTime: TimeInterval
     var ownerPID: pid_t?
+    var options: PreventionOptions? = nil
 }
 
 final class SleepManager {
@@ -17,10 +20,24 @@ final class SleepManager {
     private var expiryTimer: DispatchSourceTimer?
     private var reconnectTimer: DispatchSourceTimer?
     private var pendingSleepRequestID: UUID?
+    private var policyTimer: DispatchSourceTimer?
+    private var displayAssertion: IOPMAssertionID = 0
+    private var activityAssertion: IOPMAssertionID = 0
 
     init() {
         queue.sync {
             recoverOnStartup()
+            let timer = DispatchSource.makeTimerSource(queue: queue)
+            timer.schedule(deadline: .now(), repeating: 15)
+            timer.setEventHandler { [weak self] in
+                do {
+                    try self?.enforceOptions()
+                } catch {
+                    NSLog("Clamsomnia helper could not apply prevention options: %@", error.localizedDescription)
+                }
+            }
+            policyTimer = timer
+            timer.resume()
         }
     }
 
@@ -72,13 +89,19 @@ final class SleepManager {
                     status = try self.currentStatus()
                 case .setEnabled:
                     guard let enabled = request.enabled else { throw SleepManagerError.invalidRequest }
+                    if let options = request.options, !options.isValid { throw SleepManagerError.invalidRequest }
                     try self.setEnabled(enabled, duration: request.duration, ownerPID: pid)
+                    if enabled { try self.updateOptions(request.options ?? .defaults) }
                     self.pendingSleepRequestID = nil
                     status = try self.currentStatus()
                 case .setDuration:
                     guard let duration = request.duration else { throw SleepManagerError.invalidRequest }
                     try self.setDuration(duration)
                     self.pendingSleepRequestID = nil
+                    status = try self.currentStatus()
+                case .setOptions:
+                    guard let options = request.options, options.isValid else { throw SleepManagerError.invalidRequest }
+                    try self.updateOptions(options)
                     status = try self.currentStatus()
                 case .sleepNow:
                     try self.setEnabled(false, duration: nil, ownerPID: pid)
@@ -155,6 +178,7 @@ final class SleepManager {
     }
 
     private func currentStatus() throws -> SleepStatus {
+        try enforceOptions()
         if let session = savedSession, session.deadline.map({ $0 <= Date() }) == true {
             try restoreSavedSession()
         }
@@ -248,6 +272,7 @@ final class SleepManager {
     }
 
     private func clearSavedSession() {
+        releaseDisplayAssertions()
         expiryTimer?.cancel()
         expiryTimer = nil
         reconnectTimer?.cancel()
@@ -260,6 +285,85 @@ final class SleepManager {
         } catch {
             NSLog("Clamsomnia helper could not remove its saved sleep session: %@", error.localizedDescription)
         }
+    }
+
+    private func updateOptions(_ options: PreventionOptions) throws {
+        guard var session = savedSession else { return }
+        let previous = session
+        session.options = options
+        try save(session)
+        savedSession = session
+        do {
+            try enforceOptions()
+        } catch {
+            // Keep the saved preferences and live assertions consistent if IOKit rejects a change.
+            if savedSession != nil {
+                savedSession = previous
+                try? save(previous)
+                releaseDisplayAssertions()
+                try? enforceOptions()
+            }
+            throw error
+        }
+    }
+
+    private func enforceOptions() throws {
+        guard let session = savedSession else {
+            releaseDisplayAssertions()
+            return
+        }
+        let options = session.options ?? .defaults
+        if session.deadline.map({ $0 <= Date() }) == true {
+            try restoreSavedSession()
+            return
+        }
+        if options.batteryThreshold != nil {
+            let battery = Self.batteryState()
+            if options.shouldRestore(batteryPercent: battery.percent, onBattery: battery.onBattery) {
+                try restoreSavedSession()
+                return
+            }
+        }
+        guard options.preventAutoLock else {
+            releaseDisplayAssertions()
+            return
+        }
+        if displayAssertion == 0 {
+            let result = IOPMAssertionCreateWithName(
+                kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
+                IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                "Clamsomnia automatic lock prevention" as CFString,
+                &displayAssertion
+            )
+            guard result == kIOReturnSuccess else { throw SleepManagerError.assertionFailed(result) }
+        }
+        // Renew user activity to also postpone the idle screen saver. This cannot unlock a locked session.
+        let result = IOPMAssertionDeclareUserActivity(
+            "Clamsomnia automatic lock prevention" as CFString,
+            kIOPMUserActiveLocal, &activityAssertion
+        )
+        guard result == kIOReturnSuccess else { throw SleepManagerError.assertionFailed(result) }
+    }
+
+    private func releaseDisplayAssertions() {
+        if displayAssertion != 0 { IOPMAssertionRelease(displayAssertion); displayAssertion = 0 }
+        if activityAssertion != 0 { IOPMAssertionRelease(activityAssertion); activityAssertion = 0 }
+    }
+
+    private static func batteryState() -> (percent: Int?, onBattery: Bool) {
+        guard let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+              let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef] else {
+            return (nil, false)
+        }
+        for source in sources {
+            guard let description = IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue() as? [String: Any],
+                  description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType,
+                  let current = description[kIOPSCurrentCapacityKey] as? Int,
+                  let maximum = description[kIOPSMaxCapacityKey] as? Int, maximum > 0 else { continue }
+            return (Int(Double(current) / Double(maximum) * 100),
+                    description[kIOPSPowerSourceStateKey] as? String == kIOPSBatteryPowerValue)
+        }
+        return (nil, false)
     }
 
     private func scheduleExpiry(for session: SavedSleepSession) {
@@ -388,6 +492,7 @@ private enum SleepManagerError: LocalizedError {
     case stateWriteFailed(Int32)
     case sleepStateUnavailable
     case pmsetFailed(String)
+    case assertionFailed(Int32)
 
     var errorDescription: String? {
         switch self {
@@ -401,6 +506,8 @@ private enum SleepManagerError: LocalizedError {
             return "pmset did not report the SleepDisabled setting."
         case .pmsetFailed(let detail):
             return "pmset failed: \(detail)"
+        case .assertionFailed(let code):
+            return "Could not prevent automatic screen locking (IOKit \(code))."
         }
     }
 }
